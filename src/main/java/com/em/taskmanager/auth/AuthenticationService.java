@@ -3,6 +3,7 @@ package com.em.taskmanager.auth;
 import com.em.taskmanager.config.JwtService;
 import com.em.taskmanager.enums.Role;
 import com.em.taskmanager.entities.User;
+import com.em.taskmanager.exceptions.UserExists;
 import com.em.taskmanager.repositories.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,12 +14,14 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final UserRepo repository;
+    private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public String register(RegisterRequest request) {
+    public String register(RegisterRequest request) throws UserExists {
+        if (userRepo.findByEmail(request.getEmail()).isPresent())
+            throw new UserExists("Such a user exists.");
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -26,7 +29,7 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.User)
                 .build();
-        repository.save(user);
+        userRepo.save(user);
         return jwtService.generateToken(user);
     }
 
@@ -37,7 +40,7 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-        var user = repository.findByEmail(request.getEmail())
+        var user = userRepo.findByEmail(request.getEmail())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()

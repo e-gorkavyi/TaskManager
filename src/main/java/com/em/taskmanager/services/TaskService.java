@@ -1,5 +1,6 @@
 package com.em.taskmanager.services;
 
+import com.em.taskmanager.dto.PerformerDTO;
 import com.em.taskmanager.dto.StatusDTO;
 import com.em.taskmanager.dto.TaskDTO;
 import com.em.taskmanager.entities.Task;
@@ -68,14 +69,10 @@ public class TaskService {
                 task.get().setPerformer(userRepo.findById(taskDTO.getPerformerId()).get());
             } else throw new UserNotFound("User for 'Performer' field not found.");
 
-        if (taskDTO.getHeader() != null)
-            task.get().setHeader(taskDTO.getHeader());
-        if (taskDTO.getDescription() != null)
-            task.get().setDescription(taskDTO.getDescription());
-        if (taskDTO.getStatus() != null)
-            task.get().setStatus(taskDTO.getStatus());
-        if (taskDTO.getPriority() != null)
-            task.get().setPriority(taskDTO.getPriority());
+        task.get().setHeader(taskDTO.getHeader());
+        task.get().setDescription(taskDTO.getDescription());
+        task.get().setStatus(taskDTO.getStatus());
+        task.get().setPriority(taskDTO.getPriority());
 
         if (!task.get().getCreator().getId().equals(user.getId())) {
             throw new NotTaskOwner("Update record denied because the user is not record creator.");
@@ -83,6 +80,7 @@ public class TaskService {
     }
 
     public Task updateTaskStatus(StatusDTO statusDTO, Principal principal) throws NotTaskOwner, RecordNotFound {
+
         User user = userRepo.findByEmail(principal.getName()).get();
 
         Optional<Task> task = taskRepo.findById(statusDTO.getTaskId());
@@ -91,7 +89,40 @@ public class TaskService {
             if (task.get().getCreator().getId().equals(user.getId()) || task.get().getPerformer().getId().equals(user.getId())) {
                 task.get().setStatus(statusDTO.getStatus());
                 return taskRepo.save(task.get());
-            } else throw new NotTaskOwner("Update record denied because the user does not have rights to do this action");
+            } else throw new NotTaskOwner("Update record denied because the user does not have rights to do this action.");
+        } else throw new RecordNotFound("Record not found.");
+    }
+
+    public Task updateTaskPerformer(PerformerDTO performerDTO, Principal principal) throws NotTaskOwner, UserNotFound, RecordNotFound {
+
+        User user = userRepo.findByEmail(principal.getName()).get();
+        User performer = userRepo.findById(performerDTO.getPerformerId()).orElse(null);
+
+        if (performer == null) {
+            throw new UserNotFound("Update record denied because the performer user not found.");
+        }
+
+        Optional<Task> task = taskRepo.findById(performerDTO.getTaskId());
+
+        if (task.isPresent()) {
+            if (task.get().getCreator().getId().equals(user.getId())) {
+                task.get().setPerformer(performer);
+                return taskRepo.save(task.get());
+            } else throw new NotTaskOwner("Update record denied because the user does not have rights to do this action.");
+        } else throw new RecordNotFound("Record not found.");
+    }
+
+    public String deleteTaskById(Long id, Principal principal) throws NotTaskOwner, RecordNotFound {
+
+        User user = userRepo.findByEmail(principal.getName()).get();
+
+        Optional<Task> task = taskRepo.findById(id);
+
+        if (task.isPresent()) {
+            if (task.get().getCreator().getId().equals(user.getId())) {
+                taskRepo.delete(task.get());
+                return "Task deleted.";
+            } else throw new NotTaskOwner("Update record denied because the user does not have rights to do this action.");
         } else throw new RecordNotFound("Record not found.");
     }
 }

@@ -46,14 +46,14 @@ public class Task {
     @UpdateTimestamp
     private LocalDateTime lastModified;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creator;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "performer_id")
     private User performer;
 
-    @OneToMany(cascade=CascadeType.REMOVE, mappedBy = "task")
+    @OneToMany(cascade=CascadeType.ALL, mappedBy = "taskId")
     private Set<Comment> comments;
 }

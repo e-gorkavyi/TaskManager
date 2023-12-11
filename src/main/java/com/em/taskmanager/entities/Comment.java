@@ -5,10 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.SqlTypes;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -27,15 +30,15 @@ public class Comment {
     @Column(columnDefinition = "TEXT")
     private String commentBody;
 
-    @ManyToOne
-    @JoinColumn(name = "task_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Task task;
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime created;
+
+    private Long taskId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Member commenter;
+    private User commenter;
 
 
 }

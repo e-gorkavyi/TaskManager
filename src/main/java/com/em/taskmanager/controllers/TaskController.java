@@ -1,5 +1,6 @@
 package com.em.taskmanager.controllers;
 
+import com.em.taskmanager.dto.PerformerDTO;
 import com.em.taskmanager.dto.StatusDTO;
 import com.em.taskmanager.dto.TaskDTO;
 import com.em.taskmanager.entities.Task;
@@ -63,30 +64,46 @@ public class TaskController {
     public ResponseEntity<?> updateTask(@RequestBody TaskDTO task, Principal principal) {
         try {
             return ResponseEntity.ok(taskService.updateTask(task, principal));
-        } catch (NotTaskOwner | RecordNotFound | UserNotFound e) {
-            if (e.getClass() == NotTaskOwner.class)
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-            if (e.getClass() == RecordNotFound.class)
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            if (e.getClass() == UserNotFound.class)
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        } catch (Exception e) {
+            return exceptionAdapter(e);
         }
     }
 
     @PostMapping("/updateTaskStatus")
     public ResponseEntity<?> updateTaskStatus(@RequestBody StatusDTO statusDTO, Principal principal) {
         try {
-            return ResponseEntity.ok((taskService.updateTaskStatus(statusDTO, principal)));
-        } catch (NotTaskOwner | RecordNotFound e) {
-            if (e.getClass() == NotTaskOwner.class)
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-            if (e.getClass() == RecordNotFound.class)
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.ok(taskService.updateTaskStatus(statusDTO, principal));
+        } catch (Exception e) {
+            return exceptionAdapter(e);
         }
+    }
+
+    @PostMapping("/updateTaskPerformer")
+    public ResponseEntity<?> updateTaskPerformer(@RequestBody PerformerDTO performerDTO, Principal principal) {
+        try {
+            return ResponseEntity.ok(taskService.updateTaskPerformer(performerDTO, principal));
+        } catch (Exception e) {
+            return exceptionAdapter(e);
+        }
+    }
+
+    @DeleteMapping("/deleteById")
+    public ResponseEntity<?> deleteById(Long taskId, Principal principal) {
+        try {
+            return ResponseEntity.ok(taskService.deleteTaskById(taskId, principal));
+        } catch (NotTaskOwner | RecordNotFound e) {
+            return exceptionAdapter(e);
+        }
+    }
+
+    public ResponseEntity<?> exceptionAdapter(Exception exception) {
+        if (exception.getClass() == NotTaskOwner.class)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
+        if (exception.getClass() == RecordNotFound.class)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+        if (exception.getClass() == UserNotFound.class)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.em.taskmanager.controllers;
 
 import com.em.taskmanager.auth.*;
+import com.em.taskmanager.exceptions.UserExists;
 import com.em.taskmanager.util.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -39,7 +40,11 @@ public class AuthenticationController {
                     It doesn’t contain any white space.""",
                     HttpStatus.BAD_REQUEST);
 
-        return ResponseEntity.ok(service.register(request));
+        try {
+            return ResponseEntity.ok(service.register(request));
+        } catch (UserExists e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
     }
 
     @PostMapping("/authenticate")
