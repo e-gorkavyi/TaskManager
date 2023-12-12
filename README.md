@@ -21,3 +21,5 @@ Spring-Boot приложение для управления задачами. B
 ## Документация.
 
 Доступ к документации при запущенном приложении через Swagger: `http://{HOST}:{PORT}/swagger-ui/index.html`, `http://{HOST}:{PORT}/v3/api-docs`.
+
+Документация в формате Open API в JSON в файле `./openAPI/openAPI.json`
