@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface CommentRepo extends CrudRepository<Comment, Long> {
 
     Page<Comment> findAllByTaskId(Long taskId, Pageable pageable);
+
 }

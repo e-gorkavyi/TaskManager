@@ -7,6 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StatusDTO {
+
     private Long taskId;
     private Status status;
+
 }

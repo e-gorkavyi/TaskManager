@@ -8,10 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TaskDTO {
+
     private Long id = 0L;
     private String header;
     private String description;
     private Status status = Status.WAIT;
     private Priority priority = Priority.MIDDLE;
     private Long performerId;
+
 }
